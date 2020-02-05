@@ -23,7 +23,7 @@ testloader = torch.utils.data.DataLoader(
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 file_path = ''
 model_path = ''
-use_clean_model = True
+use_clean_model = False
 model = MNIST_net()
 
 if use_clean_model:
