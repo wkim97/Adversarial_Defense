@@ -1,0 +1,135 @@
+Clean dataset
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 98 %
+Accuracy of 6, 98 %
+Accuracy of 7, 98 %
+Accuracy of 8, 98 %
+Accuracy of 9, 98 %
+L_inf attack methods
+FGSM attack
+Avg Accuracy, 88 %
+Accuracy of 0, 94 %
+Accuracy of 1, 83 %
+Accuracy of 2, 76 %
+Accuracy of 3, 95 %
+Accuracy of 4, 97 %
+Accuracy of 5, 81 %
+Accuracy of 6, 87 %
+Accuracy of 7, 90 %
+Accuracy of 8, 95 %
+Accuracy of 9, 80 %
+BIM attack
+Avg Accuracy, 85 %
+Accuracy of 0, 93 %
+Accuracy of 1, 75 %
+Accuracy of 2, 71 %
+Accuracy of 3, 94 %
+Accuracy of 4, 95 %
+Accuracy of 5, 78 %
+Accuracy of 6, 83 %
+Accuracy of 7, 88 %
+Accuracy of 8, 95 %
+Accuracy of 9, 75 %
+Untargeted Linf_PGD attack
+Avg Accuracy, 34 %
+Accuracy of 0, 43 %
+Accuracy of 1, 15 %
+Accuracy of 2, 16 %
+Accuracy of 3, 62 %
+Accuracy of 4, 62 %
+Accuracy of 5, 24 %
+Accuracy of 6, 30 %
+Accuracy of 7, 48 %
+Accuracy of 8, 35 %
+Accuracy of 9,  8 %
+Targeted Linf_PGD attack
+Avg Accuracy, 68 %
+Accuracy of 0, 90 %
+Accuracy of 1, 65 %
+Accuracy of 2, 30 %
+Accuracy of 3, 100 %
+Accuracy of 4, 89 %
+Accuracy of 5, 47 %
+Accuracy of 6, 72 %
+Accuracy of 7, 71 %
+Accuracy of 8, 43 %
+Accuracy of 9, 75 %
+Untargeted L2_PGD attack
+Avg Accuracy, 95 %
+Accuracy of 0, 98 %
+Accuracy of 1, 90 %
+Accuracy of 2, 89 %
+Accuracy of 3, 98 %
+Accuracy of 4, 98 %
+Accuracy of 5, 94 %
+Accuracy of 6, 94 %
+Accuracy of 7, 95 %
+Accuracy of 8, 99 %
+Accuracy of 9, 94 %
+Targeted L2_PGD attack
+Avg Accuracy, 95 %
+Accuracy of 0, 98 %
+Accuracy of 1, 90 %
+Accuracy of 2, 89 %
+Accuracy of 3, 98 %
+Accuracy of 4, 98 %
+Accuracy of 5, 94 %
+Accuracy of 6, 94 %
+Accuracy of 7, 95 %
+Accuracy of 8, 99 %
+Accuracy of 9, 94 %
+L0 attack methods
+Untargeted JSMA attack
+Avg Accuracy, 98 %
+Accuracy of 0, 99 %
+Accuracy of 1, 94 %
+Accuracy of 2, 96 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 97 %
+Accuracy of 6, 97 %
+Accuracy of 7, 98 %
+Accuracy of 8, 100 %
+Accuracy of 9, 98 %
+Targeted JSMA attack
+Avg Accuracy, 33 %
+Accuracy of 0, 42 %
+Accuracy of 1,  0 %
+Accuracy of 2, 21 %
+Accuracy of 3, 100 %
+Accuracy of 4, 57 %
+Accuracy of 5,  8 %
+Accuracy of 6, 29 %
+Accuracy of 7,  7 %
+Accuracy of 8, 46 %
+Accuracy of 9, 19 %
+L0 attack methods
+Decoupled Direction and Norm attack
+Avg Accuracy, 0 %
+Accuracy of 0,  0 %
+Accuracy of 1,  0 %
+Accuracy of 2,  0 %
+Accuracy of 3,  0 %
+Accuracy of 4,  0 %
+Accuracy of 5,  0 %
+Accuracy of 6,  0 %
+Accuracy of 7,  0 %
+Accuracy of 8,  0 %
+Accuracy of 9,  0 %
+L-BFGS attack
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 100 %
+Accuracy of 3, 100 %
+Accuracy of 4, 100 %
+Accuracy of 5, 100 %
+Accuracy of 6, 99 %
+Accuracy of 7, 99 %
+Accuracy of 8, 100 %
+Accuracy of 9, 100 %
