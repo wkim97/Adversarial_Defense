@@ -12,11 +12,11 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, ), (0.5, ))])
 trainset = torchvision.datasets.MNIST(
-    './data', train=True, download=True, transform=transform)
+    '../data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=batch_size, shuffle=True)
 testset = torchvision.datasets.MNIST(
-    './data', train=False, download=True, transform=transform)
+    '../data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=batch_size, shuffle=True)
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')

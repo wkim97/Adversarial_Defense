@@ -13,22 +13,22 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, ), (0.5, ))])
 trainset = torchvision.datasets.MNIST(
-    './data', train=True, download=True, transform=transform)
+    '../data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=batch_size, shuffle=True)
 testset = torchvision.datasets.MNIST(
-    './data', train=False, download=True, transform=transform)
+    '../data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=batch_size, shuffle=True)
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-model_path = './models/MNIST_net.pth'
+model_path = './models/pgd_MNIST_net.pth'
 
 ###################################################################################################
 # Create training model
 ###################################################################################################
-class MNIST_net(nn.Module):
+class pgd_MNIST_net(nn.Module):
     def __init__(self):
-        super(MNIST_net, self).__init__()
+        super(pgd_MNIST_net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, 5)
         self.conv2 = nn.Conv2d(32, 64, 5)
         self.fc1 = nn.Linear(64 * 4 * 4, 10)
@@ -40,7 +40,7 @@ class MNIST_net(nn.Module):
         x = F.log_softmax(x, dim=1)
         return x
 
-model = MNIST_net()
+model = pgd_MNIST_net()
 if use_gpu:
     model = model.cuda()
 
