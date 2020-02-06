@@ -1,0 +1,33 @@
+Accuracy of the network on the GAN-generated test images: 98 %
+Accuracy of 0 99 %
+Accuracy of 1 99 %
+Accuracy of 2 99 %
+Accuracy of 3 99 %
+Accuracy of 4 97 %
+Accuracy of 5 98 %
+Accuracy of 6 98 %
+Accuracy of 7 98 %
+Accuracy of 8 99 %
+Accuracy of 9 98 %
+Accuracy of the network on the Gaussian test images: 7 %
+Accuracy of 0  0 %
+Accuracy of 1  0 %
+Accuracy of 2  0 %
+Accuracy of 3  0 %
+Accuracy of 4  0 %
+Accuracy of 5  0 %
+Accuracy of 6  0 %
+Accuracy of 7  0 %
+Accuracy of 8 100 %
+Accuracy of 9  0 %
+Accuracy of the network on the PGD test images: 99 %
+Accuracy of 0 100 %
+Accuracy of 1 100 %
+Accuracy of 2 100 %
+Accuracy of 3 100 %
+Accuracy of 4 97 %
+Accuracy of 5 100 %
+Accuracy of 6 97 %
+Accuracy of 7 98 %
+Accuracy of 8 100 %
+Accuracy of 9 97 %
