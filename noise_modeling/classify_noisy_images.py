@@ -1,12 +1,9 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from torch.autograd import Variable
+from adversarial_attacks.train_clean import MNIST_net
 
 #############################################################################
 # 1. Get training and test data sets
@@ -36,26 +33,13 @@ pgd_testset = torchvision.datasets.ImageFolder(
     root=data_path, transform=transform)
 pgd_testloader = torch.utils.data.DataLoader(
     pgd_testset, batch_size=batch_size, shuffle=True)
-
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-PATH = '../models/MNIST_net.pth'
+use_pgd_training = True
 
-#############################################################################
-# 2. Define CNN, loss, and optimizer
-#############################################################################
-class MNIST_net(nn.Module):
-    def __init__(self):
-        super(MNIST_net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, 5)
-        self.conv2 = nn.Conv2d(32, 64, 5)
-        self.fc1 = nn.Linear(64 * 4 * 4, 10)
-    def forward(self, x):
-        x = F.max_pool2d(F.relu(self.conv1(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-        x = x.view(-1, 64 * 4 * 4)
-        x = self.fc1(x)
-        x = F.log_softmax(x, dim=1)
-        return x
+if use_pgd_training:
+    PATH = '../models/pgd_MNIST_net.pth'
+else:
+    PATH = '../models/MNIST_net.pth'
 
 #############################################################################
 # 4. Testing with the test data
