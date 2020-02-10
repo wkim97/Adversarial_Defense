@@ -25,6 +25,10 @@ trainset = torchvision.datasets.MNIST(
     '../data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=batch_size, shuffle=True)
+dataset = torchvision.datasets.MNIST(
+    '../data', download=True, transform=transform)
+dataloader = torch.utils.data.DataLoader(
+    dataset, batch_size=batch_size, shuffle=True)
 
 model = MNIST_net()
 if use_gpu:
@@ -35,10 +39,10 @@ linf_pgd_attack = attacks.LinfPGDAttack(model, loss_fn=nn.CrossEntropyLoss(reduc
                                         clip_max=1.0, targeted=False)
 
 def apply_gaussian():
-    i = 1
-    for data in trainloader:
+    i = 0
+    for data in dataloader:
         images, labels = data
-        path = gaussian_path + '/{} - {}.png'.format(labels.numpy(), i)
+        path = gaussian_path + '/{}.png'.format(i)
         b_size, ch, row, col = images.shape
         noise = torch.zeros(batch_size, ch * row * col)
         noise.data.normal_(0, 1)
@@ -53,14 +57,14 @@ def apply_gaussian():
         plt.close(fig)
         i += batch_size
         print("Gaussian image {} created".format(i + 1))
-        if i == 501:
+        if i == 500:
             break
 
 def apply_pgd():
-    i = 1
-    for data in trainloader:
+    i = 0
+    for data in dataloader:
         images, labels = data
-        path = pgd_path + '/{} - {}.png'.format(labels.numpy(), i)
+        path = pgd_path + '/{}.png'.format(i)
         if use_gpu:
             images, labels = images.cuda(), labels.cuda()
         images = linf_pgd_attack.perturb(images, labels)
@@ -72,7 +76,7 @@ def apply_pgd():
         plt.close(fig)
         i += batch_size
         print("PGD image {} created".format(i + 1))
-        if i == 501:
+        if i == 500:
             break
 
 apply_gaussian()
