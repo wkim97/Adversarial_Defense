@@ -14,8 +14,8 @@ from adversarial_attacks.train_clean import MNIST_net
 
 batch_size = 1
 use_gpu = torch.cuda.is_available()
-gaussian_path = './noisy_images/gaussian/images'
-pgd_path = './noisy_images/pgd_attacked/images'
+gaussian_path = './noisy_images/gaussian/images/images'
+pgd_path = './noisy_images/pgd_attacked/images/images'
 model_path = '../models/MNIST_net.pth'
 
 transform = transforms.Compose([
@@ -57,7 +57,7 @@ def apply_gaussian():
         plt.close(fig)
         i += batch_size
         print("Gaussian image {} created".format(i + 1))
-        if i == 500:
+        if i == 5000:
             break
 
 def apply_pgd():
@@ -76,7 +76,7 @@ def apply_pgd():
         plt.close(fig)
         i += batch_size
         print("PGD image {} created".format(i + 1))
-        if i == 500:
+        if i == 5000:
             break
 
 apply_gaussian()
