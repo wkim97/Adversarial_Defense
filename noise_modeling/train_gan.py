@@ -36,7 +36,7 @@ pgd_loss_path = './results/gaussian_gan_loss.png'
 is_gaussian = False
 use_gpu = torch.cuda.is_available()
 
-num_epochs = 500
+num_epochs = 2000
 train_hist = {}
 batch_size = 50
 ngpu = torch.cuda.device_count()
