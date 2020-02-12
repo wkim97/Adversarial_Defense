@@ -14,8 +14,8 @@ from adversarial_attacks.train_clean import MNIST_net
 
 batch_size = 1
 use_gpu = torch.cuda.is_available()
-gaussian_path = './noisy_images/gaussian/images/images'
-pgd_path = './noisy_images/pgd_attacked/images/images'
+gaussian_path = './noisy_images/gaussian'
+pgd_path = './noisy_images/pgd_attacked'
 model_path = '../models/MNIST_net.pth'
 
 transform = transforms.Compose([
@@ -38,46 +38,51 @@ linf_pgd_attack = attacks.LinfPGDAttack(model, loss_fn=nn.CrossEntropyLoss(reduc
                                         nb_iter=40, eps_iter=0.01, rand_init=True, clip_min=0.0,
                                         clip_max=1.0, targeted=False)
 
-def apply_gaussian():
+def apply_gaussian(selected_class):
     i = 0
     for data in dataloader:
         images, labels = data
-        path = gaussian_path + '/{}.png'.format(i)
-        b_size, ch, row, col = images.shape
-        noise = torch.zeros(batch_size, ch * row * col)
-        noise.data.normal_(0, 1)
-        if use_gpu:
-            images, labels, noise = images.cuda(), labels.cuda(), noise.cuda()
-        images = images + noise.view(ch, row, col)
-        fig = plt.figure()
-        ax = plt.axis("off")
-        sample = np.transpose(vutils.make_grid(images, normalize=True).cpu().detach().numpy(),
-                              (1, 2, 0))
-        plt.imsave(path, sample, cmap="gray")
-        plt.close(fig)
-        i += batch_size
-        print("Gaussian image {} created".format(i + 1))
-        if i == 5000:
-            break
+        if labels.numpy()[0] == selected_class:
+            path = gaussian_path + '/{}/images/{}.png'.format(selected_class, i)
+            b_size, ch, row, col = images.shape
+            noise = torch.zeros(batch_size, ch * row * col)
+            noise.data.normal_(0, 1)
+            if use_gpu:
+                images, labels, noise = images.cuda(), labels.cuda(), noise.cuda()
+            images = images + noise.view(ch, row, col)
+            fig = plt.figure()
+            ax = plt.axis("off")
+            sample = np.transpose(vutils.make_grid(images, normalize=True).cpu().detach().numpy(),
+                                  (1, 2, 0))
+            plt.imsave(path, sample, cmap="gray")
+            plt.close(fig)
+            i += batch_size
+            print("Gaussian image {} for class {} created".format(i + 1, selected_class))
+            if i == 5000:
+                break
 
-def apply_pgd():
+def apply_pgd(selected_class):
     i = 0
     for data in dataloader:
         images, labels = data
-        path = pgd_path + '/{}.png'.format(i)
-        if use_gpu:
-            images, labels = images.cuda(), labels.cuda()
-        images = linf_pgd_attack.perturb(images, labels)
-        fig = plt.figure()
-        ax = plt.axis("off")
-        sample = np.transpose(vutils.make_grid(images, normalize=True).cpu().detach().numpy(),
-                              (1, 2, 0))
-        plt.imsave(path, sample, cmap="gray")
-        plt.close(fig)
-        i += batch_size
-        print("PGD image {} created".format(i + 1))
-        if i == 5000:
-            break
+        if labels.numpy()[0] == selected_class:
+            path = pgd_path + '/{}/images/{}.png'.format(selected_class, i)
+            if use_gpu:
+                images, labels = images.cuda(), labels.cuda()
+            images = linf_pgd_attack.perturb(images, labels)
+            fig = plt.figure()
+            ax = plt.axis("off")
+            sample = np.transpose(vutils.make_grid(images, normalize=True).cpu().detach().numpy(),
+                                  (1, 2, 0))
+            plt.imsave(path, sample, cmap="gray")
+            plt.close(fig)
+            i += batch_size
+            print("PGD image {} for class {} created".format(i + 1, selected_class))
+            if i == 5000:
+                break
 
-apply_gaussian()
-apply_pgd()
+def main():
+    for i in range(10):
+        selected_class = i
+        # apply_gaussian(selected_class)
+        apply_pgd(selected_class)
