@@ -1,14 +1,21 @@
+import os
+import pathlib
+from tqdm import tqdm
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import torchvision.utils as vutils
 import torch.nn as nn
 import advertorch.attacks as attacks
+import matplotlib.pyplot as plt
+import numpy as np
 from denoising.CNN_model import MNIST_net
 from denoising.DnCNN_model import DnCNN
 
+
 batch_size = 100
+image_batch_size = 1
 use_gpu = torch.cuda.is_available()
-denoise = True
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -24,11 +31,6 @@ testloader = torch.utils.data.DataLoader(
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 classification_model_path = './models/clean_Cnn_model.pth'
 denoising_model_path = './models/DnCnn_model.pth'
-if denoise:
-    file_path = './results/denoised_accuracy_results.csv'
-else:
-    file_path = './results/accuracy_results.csv'
-
 
 model = MNIST_net()
 if use_gpu:
@@ -39,7 +41,6 @@ denoiser = DnCNN(num_layers=17, num_features=64)
 if use_gpu:
     denoiser = denoiser.cuda()
 denoiser.load_state_dict(torch.load(denoising_model_path))
-
 
 ###################################################################################################
 # Set up Linf attacks
@@ -58,11 +59,6 @@ linf_pgd_attack = attacks.LinfPGDAttack(model, loss_fn=nn.CrossEntropyLoss(reduc
 ###################################################################################################
 # Set up L2 attacks
 ###################################################################################################
-cw_attack = attacks.CarliniWagnerL2Attack(model, num_classes=10, confidence=0, targeted=False,
-                                          learning_rate=0.01, binary_search_steps=9,
-                                          max_iterations=10000, abort_early=True, initial_const=0.001,
-                                          clip_min=0.0, clip_max=1.0)
-
 l2_pgd_attack = attacks.L2PGDAttack(model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=0.3,
                                     nb_iter=40, eps_iter=0.01, rand_init=True, clip_min=0.0,
                                     clip_max=1.0, targeted=False)
@@ -74,10 +70,6 @@ jsma_attack = attacks.JacobianSaliencyMapAttack(model, num_classes=10, clip_min=
                                                 loss_fn=nn.CrossEntropyLoss(reduction="sum"),
                                                 theta=1.0, gamma=1.0, comply_cleverhans=False)
 
-l0_pgd_attack = attacks.L1PGDAttack(model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=0.3,
-                                    nb_iter=40, eps_iter=0.01, rand_init=True, clip_min=0.0,
-                                    clip_max=1.0, targeted=False)
-
 ddnl2_attack = attacks.DDNL2Attack(model, nb_iter=100, gamma=0.05, init_norm=1.0, quantize=True,
                                    levels=256, clip_min=0.0, clip_max=1.0, targeted=False,
                                    loss_fn=nn.CrossEntropyLoss(reduction="sum"))
@@ -87,461 +79,183 @@ lbfgs_attack = attacks.LBFGSAttack(model, num_classes=10, batch_size=1, binary_s
                                    loss_fn=nn.CrossEntropyLoss(reduction="sum"), targeted=False)
 
 
-###################################################################################################
-# Create file to store results
-###################################################################################################
-f = open(file_path, 'w')
+attacks = {"clean" : None,
+           "fgsm" : fgsm_attack,
+           "bim" : bim_attack,
+           "linf_pgd" : linf_pgd_attack,
+           "l2_pgd" : l2_pgd_attack,
+           "jsma" : jsma_attack,
+           "ddnl2" : ddnl2_attack,
+           "lbfgs" : lbfgs_attack}
 
-###################################################################################################
-# Classification results on clean dataset
-###################################################################################################
-f.write("Clean dataset\n")
-print("Clean dataset...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
+
+def save_image(image, path):
+    fig = plt.figure()
+    sample = np.transpose(vutils.make_grid(image, normalize=True).cpu().detach().numpy(), (1, 2, 0))
+    plt.imsave(path, sample, cmap="gray")
+    plt.close(fig)
+
+
+def generate_images(attack, targeted):
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))])
+
+    testset = torchvision.datasets.MNIST(
+        '../data', train=False, download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=image_batch_size, shuffle=False)
+
+    if targeted:
+        print("Generating images for denoised targeted {} attack".format(attack))
+        store_path = '../data/denoised_MNIST/targeted_{}'.format(attack)
+    else:
+        print("Generating images for denoised untargeted {} attack".format(attack))
+        store_path = '../data/denoised_MNIST/untargeted_{}'.format(attack)
+    attack_func = attacks[attack]
+
+    index = 0
+    with tqdm(total=(1000 - 1000 % image_batch_size)) as _tqdm:
+        for data in testloader:
+            if index == 1000:
+                break
+            images, labels = data
+            if use_gpu:
+                images, labels = images.cuda(), labels.cuda()
+            path = store_path + '/{}'.format(labels.detach().cpu().numpy()[0])
+            directory = os.path.dirname(path)
+            if not os.path.exists(directory):
+                pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            if attack != "clean":
+                if targeted:
+                    target = torch.ones_like(labels) * 3
+                    attack_func.targeted = True
+                    noisy_images = attack_func.perturb(images, target)
+                else:
+                    noisy_images = attack_func.perturb(images, labels)
+            else:
+                noisy_images = images
+            noisy_images = denoiser(noisy_images)
+            save_image(noisy_images, path + '/{}.png'.format(index))
+            index += 1
+
+            _tqdm.update(image_batch_size)
+
+
+# attack = function
+def test(attack, denoise, targeted):
+    global attacks
     if denoise:
-        images = denoiser(images)
-    outputs = model(images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
+        file_path = './results/denoised_accuracy_results.csv'
+    else:
+        file_path = './results/accuracy_results.csv'
 
-###################################################################################################
-# Classification results on FGSM attacked dataset
-###################################################################################################
-f.write("L_inf attack methods\n")
-f.write("FGSM attack\n")
-print("FGSM attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    fgsm_images = fgsm_attack.perturb(images, labels)
-    if denoise:
-        fgsm_images = denoiser(fgsm_images)
-    outputs = model(fgsm_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
+    ###################################################################################################
+    # Create file to store results
+    ###################################################################################################
+    f = open(file_path, 'a')
 
-###################################################################################################
-# Classification results on BIM attacked dataset
-###################################################################################################
-f.write("BIM attack\n")
-print("BIM attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    bim_images = bim_attack.perturb(images, labels)
-    if denoise:
-        bim_images = denoiser(bim_images)
-    outputs = model(bim_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
+    ###################################################################################################
+    # Classification results on clean dataset
+    ###################################################################################################
+    if attack == "clean":
+        f.write("Clean dataset\n")
+        if denoise:
+            print("Denoised clean dataset...")
+        else:
+            print("Clean dataset...")
+        correct = 0
+        total = 0
+        class_correct = list(0. for i in range(10))
+        class_total = list(0. for i in range(10))
+        for j, data in enumerate(testloader, 0):
+            images, labels = data
+            if use_gpu:
+                images = images.cuda()
+                labels = labels.cuda()
+            if denoise:
+                images = denoiser(images)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            c = (predicted == labels).squeeze()
+            for i in range(batch_size):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
+        f.write('Avg Accuracy, %d %%\n'
+                % (100 * correct / total))
+        print('Avg Accuracy, %d %%\n'
+                % (100 * correct / total))
+        for i in range(10):
+            f.write('Accuracy of %s, %2d %%\n'
+                    % (classes[i], 100 * class_correct[i] / class_total[i]))
 
-###################################################################################################
-# Classification results on untargeted PGD attacked dataset
-###################################################################################################
-f.write("Untargeted Linf_PGD attack\n")
-print("Untargeted Linf PGD attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    untargeted_pgd_images = linf_pgd_attack.perturb(images, labels)
-    if denoise:
-        untargeted_pgd_images = denoiser(untargeted_pgd_images)
-    outputs = model(untargeted_pgd_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
+    ###################################################################################################
+    # Classification results on attacked dataset
+    ###################################################################################################
+    else:
+        if targeted:
+            f.write("Targeted {} attack\n".format(attack))
+        else:
+            f.write("Untargeted {} attack\n".format(attack))
+        if denoise and targeted:
+            print("Denoised targeted {} attack...".format(attack))
+        elif denoise and not targeted:
+            print("Denoised untargeted {} attack...".format(attack))
+        elif not denoise and targeted:
+            print("Targeted {} attack...".format(attack))
+        else:
+            print("Untargeted {} attack...".format(attack))
+        correct = 0
+        total = 0
+        class_correct = list(0. for i in range(10))
+        class_total = list(0. for i in range(10))
+        attack_func = attacks[attack]
 
-###################################################################################################
-# Classification results on targeted PGD attacked dataset
-###################################################################################################
-f.write("Targeted Linf_PGD attack\n")
-print("Targeted Linf PGD attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    target = torch.ones_like(labels) * 3
-    linf_pgd_attack.targeted = True
-    targeted_pgd_images = linf_pgd_attack.perturb(images, target)
-    if denoise:
-        targeted_pgd_images = denoiser(targeted_pgd_images)
-    outputs = model(targeted_pgd_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
+        for j, data in enumerate(testloader, 0):
+            images, labels = data
+            if use_gpu:
+                images = images.cuda()
+                labels = labels.cuda()
+            if targeted:
+                target = torch.ones_like(labels) * 3
+                attack_func.targeted = True
+                noisy_images = attack_func.perturb(images, target)
+            else:
+                noisy_images = attack_func.perturb(images, labels)
+            if denoise:
+                noisy_images = denoiser(noisy_images)
+            outputs = model(noisy_images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            c = (predicted == labels).squeeze()
+            for i in range(batch_size):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
+        f.write('Avg Accuracy, %d %%\n'
+                % (100 * correct / total))
+        print('Avg Accuracy, %d %%\n'
+                % (100 * correct / total))
+        for i in range(10):
+            f.write('Accuracy of %s, %2d %%\n'
+                    % (classes[i], 100 * class_correct[i] / class_total[i]))
 
-###################################################################################################
-# Classification results on untargeted CW attacked dataset
-###################################################################################################
-# f.write("L2 attack methods\n")
-# f.write("Untargeted CW attack\n")
-# print("Untargeted CW attack...")
-# correct = 0
-# total = 0
-# class_correct = list(0. for i in range(10))
-# class_total = list(0. for i in range(10))
-# for j, data in enumerate(testloader, 0):
-#     if j == 5:
-#         print(j)
-#         break
-#     images, labels = data
-#     if use_gpu:
-#         images = images.cuda()
-#         labels = labels.cuda()
-#     untargeted_cw_images = cw_attack.perturb(images, labels)
-#     outputs = model(untargeted_cw_images)
-#     _, predicted = torch.max(outputs.data, 1)
-#     total += labels.size(0)
-#     correct += (predicted == labels).sum().item()
-#     c = (predicted == labels).squeeze()
-#     for i in range(batch_size):
-#         label = labels[i]
-#         class_correct[label] += c[i].item()
-#         class_total[label] += 1
-# f.write('Avg Accuracy, %d %%\n'
-#         % (100 * correct / total))
-# for i in range(10):
-#     f.write('Accuracy of %s, %2d %%\n'
-#             % (classes[i], 100 * class_correct[i] / class_total[i]))
+    f.close()
 
-###################################################################################################
-# Classification results on targeted CW attacked dataset
-###################################################################################################
-# f.write("Targeted CW attack\n")
-# print("Targeted CW attack...")
-# correct = 0
-# total = 0
-# class_correct = list(0. for i in range(10))
-# class_total = list(0. for i in range(10))
-# for j, data in enumerate(testloader, 0):
-#     if j == 5:
-#         print(j)
-#         break
-#     images, labels = data
-#     if use_gpu:
-#         images = images.cuda()
-#         labels = labels.cuda()
-#     target = torch.ones_like(labels) * 3
-#     cw_attack.targeted = True
-#     targeted_cw_images = cw_attack.perturb(images, target)
-#     outputs = model(targeted_cw_images)
-#     _, predicted = torch.max(outputs.data, 1)
-#     total += labels.size(0)
-#     correct += (predicted == labels).sum().item()
-#     c = (predicted == labels).squeeze()
-#     for i in range(batch_size):
-#         label = labels[i]
-#         class_correct[label] += c[i].item()
-#         class_total[label] += 1
-# f.write('Avg Accuracy, %d %%\n'
-#         % (100 * correct / total))
-# for i in range(10):
-#     f.write('Accuracy of %s, %2d %%\n'
-#             % (classes[i], 100 * class_correct[i] / class_total[i]))
 
-###################################################################################################
-# Classification results on untargeted L2_PGD attacked dataset
-###################################################################################################
-f.write("Untargeted L2_PGD attack\n")
-print("Untargeted L2 PGD attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    untargeted_L2pgd_images = l2_pgd_attack.perturb(images, labels)
-    if denoise:
-        untargeted_L2pgd_images = denoiser(untargeted_L2pgd_images)
-    outputs = model(untargeted_L2pgd_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-###################################################################################################
-# Classification results on targeted L2_PGD attacked dataset
-###################################################################################################
-f.write("Targeted L2_PGD attack\n")
-print("Targeted L2 PGD attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    target = torch.ones_like(labels) * 3
-    l2_pgd_attack.targeted = True
-    targeted_l2pgd_images = l2_pgd_attack.perturb(images, target)
-    if denoise:
-        targeted_l2pgd_images = denoiser(targeted_l2pgd_images)
-    outputs = model(targeted_l2pgd_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-###################################################################################################
-# Classification results on untargeted JSMA attacked dataset
-###################################################################################################
-f.write("L0 attack methods\n")
-f.write("Untargeted JSMA attack\n")
-print("Untargeted JSMA attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    untargeted_jsma_images = jsma_attack.perturb(images, labels)
-    if denoise:
-        untargeted_jsma_images = denoiser(untargeted_jsma_images)
-    outputs = model(untargeted_jsma_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-###################################################################################################
-# Classification results on targeted JSMA attacked dataset
-###################################################################################################
-f.write("Targeted JSMA attack\n")
-print("Targeted JSMA attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    target = torch.ones_like(labels) * 3
-    jsma_attack.targeted = True
-    targeted_jsma_images = jsma_attack.perturb(images, target)
-    if denoise:
-        targeted_jsma_images = denoiser(targeted_jsma_images)
-    outputs = model(targeted_jsma_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-###################################################################################################
-# Classification results on DDNL2 attacked dataset
-###################################################################################################
-f.write("L0 attack methods\n")
-f.write("Decoupled Direction and Norm attack\n")
-print("Decoupled Direction and Norm attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    ddnl2_images = ddnl2_attack.perturb(images, labels)
-    if denoise:
-        ddnl2_images = denoiser(ddnl2_images)
-    outputs = model(ddnl2_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-###################################################################################################
-# Classification results on LBFGS attacked dataset
-###################################################################################################
-f.write("L-BFGS attack\n")
-print("L-BFGS attack...")
-correct = 0
-total = 0
-class_correct = list(0. for i in range(10))
-class_total = list(0. for i in range(10))
-for j, data in enumerate(testloader, 0):
-    images, labels = data
-    if use_gpu:
-        images = images.cuda()
-        labels = labels.cuda()
-    lbfgs_images = lbfgs_attack.perturb(images, labels)
-    if denoise:
-        lbfgs_images = denoiser(lbfgs_images)
-    outputs = model(lbfgs_images)
-    _, predicted = torch.max(outputs.data, 1)
-    total += labels.size(0)
-    correct += (predicted == labels).sum().item()
-    c = (predicted == labels).squeeze()
-    for i in range(batch_size):
-        label = labels[i]
-        class_correct[label] += c[i].item()
-        class_total[label] += 1
-f.write('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-print('Avg Accuracy, %d %%\n'
-        % (100 * correct / total))
-for i in range(10):
-    f.write('Accuracy of %s, %2d %%\n'
-            % (classes[i], 100 * class_correct[i] / class_total[i]))
-
-print("Testing complete!!!")
-f.close()
+for attack in attacks:
+    if attack == "clean":
+        test(attack, False, False)
+        test(attack, True, False)
+        generate_images(attack, False)
+    else:
+        test(attack, False, False)
+        test(attack, False, True)
+        test(attack, True, False)
+        test(attack, True, True)
+        generate_images(attack, False)
+        generate_images(attack, True)

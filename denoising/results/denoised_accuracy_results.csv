@@ -10,126 +10,171 @@ Accuracy of 6, 98 %
 Accuracy of 7, 99 %
 Accuracy of 8, 99 %
 Accuracy of 9, 98 %
-L_inf attack methods
-FGSM attack
-Avg Accuracy, 71 %
-Accuracy of 0, 70 %
-Accuracy of 1, 90 %
-Accuracy of 2, 54 %
-Accuracy of 3, 82 %
-Accuracy of 4, 88 %
-Accuracy of 5, 40 %
-Accuracy of 6, 85 %
-Accuracy of 7, 50 %
-Accuracy of 8, 93 %
-Accuracy of 9, 58 %
-BIM attack
-Avg Accuracy, 72 %
-Accuracy of 0, 73 %
-Accuracy of 1, 89 %
-Accuracy of 2, 55 %
-Accuracy of 3, 80 %
-Accuracy of 4, 89 %
-Accuracy of 5, 35 %
-Accuracy of 6, 86 %
-Accuracy of 7, 51 %
-Accuracy of 8, 93 %
-Accuracy of 9, 63 %
-Untargeted Linf_PGD attack
-Avg Accuracy, 73 %
-Accuracy of 0, 74 %
-Accuracy of 1, 89 %
-Accuracy of 2, 56 %
-Accuracy of 3, 81 %
-Accuracy of 4, 91 %
-Accuracy of 5, 40 %
-Accuracy of 6, 86 %
-Accuracy of 7, 52 %
-Accuracy of 8, 93 %
-Accuracy of 9, 66 %
-Targeted Linf_PGD attack
-Avg Accuracy, 79 %
-Accuracy of 0, 84 %
-Accuracy of 1, 92 %
-Accuracy of 2, 62 %
-Accuracy of 3, 97 %
-Accuracy of 4, 91 %
-Accuracy of 5, 43 %
-Accuracy of 6, 87 %
-Accuracy of 7, 62 %
-Accuracy of 8, 93 %
-Accuracy of 9, 77 %
-Untargeted L2_PGD attack
-Avg Accuracy, 82 %
-Accuracy of 0, 86 %
-Accuracy of 1, 93 %
-Accuracy of 2, 68 %
-Accuracy of 3, 94 %
-Accuracy of 4, 97 %
-Accuracy of 5, 53 %
-Accuracy of 6, 93 %
-Accuracy of 7, 61 %
-Accuracy of 8, 96 %
-Accuracy of 9, 79 %
-Targeted L2_PGD attack
-Avg Accuracy, 82 %
-Accuracy of 0, 86 %
-Accuracy of 1, 93 %
-Accuracy of 2, 68 %
-Accuracy of 3, 93 %
-Accuracy of 4, 97 %
-Accuracy of 5, 52 %
-Accuracy of 6, 93 %
-Accuracy of 7, 61 %
-Accuracy of 8, 96 %
-Accuracy of 9, 80 %
-L0 attack methods
-Untargeted JSMA attack
+Untargeted fgsm attack
+Avg Accuracy, 98 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 98 %
+Accuracy of 3, 99 %
+Accuracy of 4, 98 %
+Accuracy of 5, 98 %
+Accuracy of 6, 99 %
+Accuracy of 7, 96 %
+Accuracy of 8, 98 %
+Accuracy of 9, 96 %
+Targeted fgsm attack
 Avg Accuracy, 83 %
-Accuracy of 0, 88 %
-Accuracy of 1, 92 %
-Accuracy of 2, 69 %
-Accuracy of 3, 94 %
-Accuracy of 4, 96 %
-Accuracy of 5, 54 %
-Accuracy of 6, 94 %
-Accuracy of 7, 62 %
-Accuracy of 8, 96 %
-Accuracy of 9, 81 %
-Targeted JSMA attack
-Avg Accuracy, 64 %
-Accuracy of 0, 73 %
-Accuracy of 1, 50 %
-Accuracy of 2, 37 %
-Accuracy of 3, 93 %
-Accuracy of 4, 68 %
-Accuracy of 5, 39 %
-Accuracy of 6, 72 %
-Accuracy of 7, 40 %
-Accuracy of 8, 91 %
-Accuracy of 9, 77 %
-L0 attack methods
-Decoupled Direction and Norm attack
-Avg Accuracy, 78 %
-Accuracy of 0, 84 %
-Accuracy of 1, 94 %
-Accuracy of 2, 72 %
-Accuracy of 3, 75 %
-Accuracy of 4, 88 %
-Accuracy of 5, 70 %
-Accuracy of 6, 93 %
-Accuracy of 7, 56 %
-Accuracy of 8, 82 %
-Accuracy of 9, 66 %
-L-BFGS attack
-Avg Accuracy, 86 %
 Accuracy of 0, 92 %
-Accuracy of 1, 91 %
+Accuracy of 1, 95 %
 Accuracy of 2, 75 %
-Accuracy of 3, 94 %
-Accuracy of 4, 97 %
-Accuracy of 5, 70 %
-Accuracy of 6, 94 %
-Accuracy of 7, 71 %
+Accuracy of 3, 99 %
+Accuracy of 4, 85 %
+Accuracy of 5, 79 %
+Accuracy of 6, 87 %
+Accuracy of 7, 78 %
+Accuracy of 8, 73 %
+Accuracy of 9, 66 %
+Untargeted bim attack
+Avg Accuracy, 98 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 98 %
+Accuracy of 4, 98 %
+Accuracy of 5, 98 %
+Accuracy of 6, 98 %
+Accuracy of 7, 97 %
+Accuracy of 8, 99 %
+Accuracy of 9, 95 %
+Targeted bim attack
+Avg Accuracy, 86 %
+Accuracy of 0, 93 %
+Accuracy of 1, 96 %
+Accuracy of 2, 79 %
+Accuracy of 3, 99 %
+Accuracy of 4, 85 %
+Accuracy of 5, 83 %
+Accuracy of 6, 91 %
+Accuracy of 7, 84 %
+Accuracy of 8, 73 %
+Accuracy of 9, 77 %
+Untargeted linf_pgd attack
+Avg Accuracy, 98 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 98 %
+Accuracy of 3, 98 %
+Accuracy of 4, 98 %
+Accuracy of 5, 97 %
+Accuracy of 6, 99 %
+Accuracy of 7, 96 %
+Accuracy of 8, 99 %
+Accuracy of 9, 94 %
+Targeted linf_pgd attack
+Avg Accuracy, 87 %
+Accuracy of 0, 95 %
+Accuracy of 1, 96 %
+Accuracy of 2, 82 %
+Accuracy of 3, 98 %
+Accuracy of 4, 87 %
+Accuracy of 5, 82 %
+Accuracy of 6, 92 %
+Accuracy of 7, 85 %
+Accuracy of 8, 77 %
+Accuracy of 9, 79 %
+Untargeted l2_pgd attack
+Avg Accuracy, 95 %
+Accuracy of 0, 98 %
+Accuracy of 1, 99 %
+Accuracy of 2, 93 %
+Accuracy of 3, 97 %
+Accuracy of 4, 96 %
+Accuracy of 5, 92 %
+Accuracy of 6, 97 %
+Accuracy of 7, 91 %
 Accuracy of 8, 96 %
-Accuracy of 9, 76 %
+Accuracy of 9, 89 %
+Targeted l2_pgd attack
+Avg Accuracy, 95 %
+Accuracy of 0, 98 %
+Accuracy of 1, 99 %
+Accuracy of 2, 93 %
+Accuracy of 3, 96 %
+Accuracy of 4, 96 %
+Accuracy of 5, 92 %
+Accuracy of 6, 97 %
+Accuracy of 7, 91 %
+Accuracy of 8, 96 %
+Accuracy of 9, 89 %
+Untargeted jsma attack
+Avg Accuracy, 95 %
+Accuracy of 0, 98 %
+Accuracy of 1, 97 %
+Accuracy of 2, 95 %
+Accuracy of 3, 97 %
+Accuracy of 4, 96 %
+Accuracy of 5, 93 %
+Accuracy of 6, 98 %
+Accuracy of 7, 92 %
+Accuracy of 8, 96 %
+Accuracy of 9, 90 %
+Targeted jsma attack
+Avg Accuracy, 81 %
+Accuracy of 0, 83 %
+Accuracy of 1, 70 %
+Accuracy of 2, 80 %
+Accuracy of 3, 94 %
+Accuracy of 4, 83 %
+Accuracy of 5, 72 %
+Accuracy of 6, 79 %
+Accuracy of 7, 83 %
+Accuracy of 8, 86 %
+Accuracy of 9, 82 %
+Untargeted ddnl2 attack
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 98 %
+Targeted ddnl2 attack
+Avg Accuracy, 28 %
+Accuracy of 0, 15 %
+Accuracy of 1, 84 %
+Accuracy of 2, 17 %
+Accuracy of 3, 98 %
+Accuracy of 4,  3 %
+Accuracy of 5, 14 %
+Accuracy of 6, 21 %
+Accuracy of 7,  9 %
+Accuracy of 8,  6 %
+Accuracy of 9,  5 %
+Untargeted lbfgs attack
+Avg Accuracy, 96 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 95 %
+Accuracy of 3, 96 %
+Accuracy of 4, 95 %
+Accuracy of 5, 95 %
+Accuracy of 6, 98 %
+Accuracy of 7, 92 %
+Accuracy of 8, 96 %
+Accuracy of 9, 89 %
+Targeted lbfgs attack
+Avg Accuracy, 79 %
+Accuracy of 0, 81 %
+Accuracy of 1, 92 %
+Accuracy of 2, 87 %
+Accuracy of 3, 97 %
+Accuracy of 4, 44 %
+Accuracy of 5, 88 %
+Accuracy of 6, 88 %
+Accuracy of 7, 86 %
+Accuracy of 8, 61 %
+Accuracy of 9, 65 %

@@ -19,7 +19,7 @@ use_gpu = torch.cuda.is_available()
 batch_size = 1
 lr = 0.001
 batch_size = 50
-num_epochs = 50
+num_epochs = 100
 
 def show_image(image):
     plt.figure()
@@ -45,9 +45,8 @@ def train():
     if use_gpu:
         # model = model.cuda()
         model = model.to(device)
-    criterion = nn.MSELoss(size_average=False)
+    criterion = nn.MSELoss(size_average=False, reduction="sum")
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    # optimizer = optim.SGD(model.parameters(), lr=lr)
 
     for epoch in range(num_epochs):
         epoch_losses = AverageMeter()
