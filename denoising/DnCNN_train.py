@@ -15,11 +15,12 @@ from denoising.utils import AverageMeter
 cudnn.benchmark = True
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 use_gpu = torch.cuda.is_available()
+ngpu = torch.cuda.device_count()
 
 batch_size = 1
 lr = 0.001
 batch_size = 50
-num_epochs = 100
+num_epochs = 150
 
 def show_image(image):
     plt.figure()
@@ -45,6 +46,8 @@ def train():
     if use_gpu:
         # model = model.cuda()
         model = model.to(device)
+    if (device.type == 'cuda') and (ngpu > 2):
+        model = nn.DataParallel(model, list(range(ngpu)))
     criterion = nn.MSELoss(size_average=False, reduction="sum")
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
