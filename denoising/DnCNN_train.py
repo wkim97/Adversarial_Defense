@@ -20,7 +20,7 @@ ngpu = torch.cuda.device_count()
 batch_size = 1
 lr = 0.001
 batch_size = 50
-num_epochs = 150
+num_epochs = 300
 
 def show_image(image):
     plt.figure()
