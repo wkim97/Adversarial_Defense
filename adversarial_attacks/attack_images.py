@@ -96,15 +96,13 @@ spatial_transform_attack = attacks.SpatialTransformAttack(model, num_classes=10,
 
 
 attacks = {"clean" : None,
-           "fgsm" : fgsm_attack,
-           "bim" : bim_attack,
-           "linf_pgd" : linf_pgd_attack,
-           "momentum iterative" : momentum_iterative_attack,
-           "cw" : cw_attack,
-           "l2_pgd" : l2_pgd_attack,
-           "sparse" : sparse_attack,
-           "jsma" : jsma_attack,
-           "elastic net" : elastic_net_attack,
+           # "fgsm" : fgsm_attack,
+           # "bim" : bim_attack,
+           # "linf_pgd" : linf_pgd_attack,
+           # "momentum iterative" : momentum_iterative_attack,
+           # "cw" : cw_attack,
+           # "l2_pgd" : l2_pgd_attack,
+           # "jsma" : jsma_attack,
            "ddnl2" : ddnl2_attack,
            "lbfgs" : lbfgs_attack,
            "single pixel" : single_pixel_attack,
@@ -204,7 +202,7 @@ def test(attack, targeted):
                 avg_accuracy = 100 * correct / total
                 _tqdm.set_postfix_str('Avg Accuracy: {}'.format(avg_accuracy))
                 _tqdm.update(batch_size)
-        f.write('Avg Accuracy, %d %%\n'
+        f.write('Avg Accuracy, %d%%\n'
                 % (100 * correct / total))
         for i in range(10):
             f.write('Accuracy of %s, %2d %%\n'

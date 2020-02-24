@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 import torch.nn as nn
 import advertorch.attacks as attacks
+import advertorch.defenses as defenses
 import matplotlib.pyplot as plt
 import numpy as np
 from CNN_model import MNIST_net
@@ -101,18 +102,36 @@ spatial_transform_attack = attacks.SpatialTransformAttack(model, num_classes=10,
                                                           loss_fn=nn.CrossEntropyLoss(reduction="sum"))
 
 
-attacks = {"clean" : None,
-           "fgsm" : fgsm_attack,
-           "bim" : bim_attack,
-           "linf_pgd" : linf_pgd_attack,
-           "momentum iterative" : momentum_iterative_attack,
-           # "cw" : cw_attack,
-           "l2_pgd" : l2_pgd_attack,
-           "jsma" : jsma_attack,
-           "ddnl2" : ddnl2_attack,
-           "lbfgs" : lbfgs_attack,
-           "single pixel" : single_pixel_attack,
-           "spatial transform" : spatial_transform_attack}
+attacks = {
+    # "clean" : None,
+    # "fgsm" : fgsm_attack,
+    # "bim" : bim_attack,
+    # "linf_pgd" : linf_pgd_attack,
+    # "momentum iterative" : momentum_iterative_attack,
+    "cw" : cw_attack,
+    # "l2_pgd" : l2_pgd_attack,
+    # "jsma" : jsma_attack,
+    # "ddnl2" : ddnl2_attack,
+    # "lbfgs" : lbfgs_attack,
+    # "single pixel" : single_pixel_attack,
+    # "spatial transform" : spatial_transform_attack
+}
+
+# conv_smoothing = defenses.ConvSmoothing2D(kernel=np.array((1, 3)))
+average_smoothing = defenses.AverageSmoothing2D(channels=1, kernel_size=3)
+gaussian_smoothing = defenses.GaussianSmoothing2D(sigma=0.02, channels=1)
+median_smoothing = defenses.MedianSmoothing2D(kernel_size=3, stride=1)
+bits_squeezing = defenses.BitSqueezing(bit_depth=5)
+jpeg_filter = defenses.JPEGFilter(10)
+
+defenses = {
+    # "conv_smoothing" : nn.Sequential(conv_smoothing),
+    # "average_smoothing" : nn.Sequential(average_smoothing),
+    # "gaussian_smoothing" : nn.Sequential(gaussian_smoothing),
+    "median_smoothing" : nn.Sequential(median_smoothing),
+    "bits_squeezing" : nn.Sequential(bits_squeezing),
+    "jpeg_filter" : nn.Sequential(jpeg_filter)
+}
 
 
 def save_image(image, path):
@@ -169,17 +188,18 @@ def generate_images(attack, targeted):
 
 
 # attack = function
-def test(attack, denoise, targeted):
+def test(attack, denoise, targeted, defense):
+
     global attacks
     if denoise:
         file_path = './results/denoised_accuracy_results.csv'
     else:
-        file_path = './results/accuracy_results.csv'
+        file_path = './results/{}_accuracy_results.csv'.format(defense)
 
     ###################################################################################################
     # Create file to store results
     ###################################################################################################
-    f = open(file_path, 'a')
+    f = open(file_path, 'w')
 
     ###################################################################################################
     # Classification results on clean dataset
@@ -190,11 +210,12 @@ def test(attack, denoise, targeted):
         total = 0
         class_correct = list(0. for i in range(10))
         class_total = list(0. for i in range(10))
+        defense_func = defenses[defense]
+        if use_gpu:
+            defense_func = defense_func.cuda()
+
         with tqdm(total=(len(testset) - len(testset) % batch_size)) as _tqdm:
-            if denoise:
-                _tqdm.set_description('Denoised {} attack: '.format(attack))
-            else:
-                _tqdm.set_description('Undenoised {} attack: '.format(attack))
+            _tqdm.set_description('Defense: {}, Attack: {} '.format(defense, attack))
             for j, data in enumerate(testloader, 0):
                 images, labels = data
                 if use_gpu:
@@ -202,6 +223,7 @@ def test(attack, denoise, targeted):
                     labels = labels.cuda()
                 if denoise:
                     images = denoiser(images)
+                images = defense_func(images)
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -233,17 +255,20 @@ def test(attack, denoise, targeted):
         class_correct = list(0. for i in range(10))
         class_total = list(0. for i in range(10))
         attack_func = attacks[attack]
+        defense_func = defenses[defense]
+        if use_gpu:
+            defense_func = defense_func.cuda()
 
-        with tqdm(total=(len(testset) - len(testset) % batch_size)) as _tqdm:
-            if targeted and denoise:
-                _tqdm.set_description('Denoised Targeted {} attack: '.format(attack))
-            elif targeted and not denoise:
-                _tqdm.set_description('Undenoised Targeted {} attack: '.format(attack))
-            elif not targeted and denoise:
-                _tqdm.set_description('Denoised Untargeted {} attack: '.format(attack))
+        # with tqdm(total=(len(testset) - len(testset) % batch_size)) as _tqdm:
+        with tqdm(total=(500 - 500 % batch_size)) as _tqdm:
+            if targeted:
+                _tqdm.set_description('Defense: {}, Attack: Targeted {} '.format(defense, attack))
             else:
-                _tqdm.set_description('Undenoised Untargeted {} attack: '.format(attack))
+                _tqdm.set_description('Defense: {}, Attack: Untargeted {} '.format(defense, attack))
+            count = 0
             for j, data in enumerate(testloader, 0):
+                if count >= 500:
+                    break
                 images, labels = data
                 if use_gpu:
                     images = images.cuda()
@@ -257,6 +282,7 @@ def test(attack, denoise, targeted):
                     noisy_images = attack_func.perturb(images, labels)
                 if denoise:
                     noisy_images = denoiser(noisy_images)
+                noisy_images = defense_func(noisy_images)
                 outputs = model(noisy_images)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -269,6 +295,7 @@ def test(attack, denoise, targeted):
                 avg_accuracy = 100 * correct / total
                 _tqdm.set_postfix_str('Avg Accuracy: {}'.format(avg_accuracy))
                 _tqdm.update(batch_size)
+                count += batch_size
         f.write('Avg Accuracy, %d %%\n'
                 % (100 * correct / total))
         for i in range(10):
@@ -279,17 +306,22 @@ def test(attack, denoise, targeted):
 
 
 def main():
-    for attack in attacks:
-        if attack == "clean":
-            test(attack, False, False)
-            # test(attack, True, False)
-            # generate_images(attack, False)
-        else:
-            test(attack, False, False)
-            test(attack, False, True)
-            # test(attack, True, False)
-            # test(attack, True, True)
-            # generate_images(attack, False)
-            # generate_images(attack, True)
+    for defense in defenses:
+        for attack in attacks:
+            if attack == "clean":
+                # test(attack, False, False)
+                # test(attack, True, False)
+                # generate_images(attack, False)
+                test(attack, False, False, defense)
+
+            else:
+                # test(attack, False, False)
+                # test(attack, False, True)
+                # test(attack, True, False)
+                # test(attack, True, True)
+                # generate_images(attack, False)
+                # generate_images(attack, True)
+                test(attack, False, False, defense)
+                test(attack, False, True, defense)
 
 main()

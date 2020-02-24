@@ -17,10 +17,9 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 use_gpu = torch.cuda.is_available()
 ngpu = torch.cuda.device_count()
 
-batch_size = 1
 lr = 0.001
 batch_size = 50
-num_epochs = 300
+num_epochs = 500
 
 def show_image(image):
     plt.figure()
@@ -82,7 +81,8 @@ def train():
                 # show_image(preds)
 
 
-    torch.save(model.state_dict(), os.path.join('./models', 'DnCnn_model.pth'))
+        torch.save(model.state_dict(), os.path.join('./models/DnCNN',
+                                                    'DnCnn_model_{}_epochs.pth'.format(epoch)))
 
 
 train()

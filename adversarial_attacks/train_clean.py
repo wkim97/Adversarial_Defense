@@ -20,7 +20,7 @@ testset = torchvision.datasets.MNIST(
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=batch_size, shuffle=True)
 classes = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-model_path = './models/MNIST_net.pth'
+model_path = '../models/MNIST_net.pth'
 
 ###################################################################################################
 # Create training model
@@ -69,3 +69,5 @@ def train():
                 running_loss = 0.0
     print('Finished Training')
     torch.save(model.state_dict(), model_path)
+
+# train()

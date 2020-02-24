@@ -1,0 +1,171 @@
+Clean dataset
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 99 %
+Untargeted l2_pgd attack
+Avg Accuracy, 97 %
+Accuracy of 0, 99 %
+Accuracy of 1, 97 %
+Accuracy of 2, 97 %
+Accuracy of 3, 99 %
+Accuracy of 4, 97 %
+Accuracy of 5, 97 %
+Accuracy of 6, 98 %
+Accuracy of 7, 94 %
+Accuracy of 8, 98 %
+Accuracy of 9, 95 %
+Targeted l2_pgd attack
+Avg Accuracy, 97 %
+Accuracy of 0, 99 %
+Accuracy of 1, 97 %
+Accuracy of 2, 97 %
+Accuracy of 3, 99 %
+Accuracy of 4, 97 %
+Accuracy of 5, 97 %
+Accuracy of 6, 98 %
+Accuracy of 7, 94 %
+Accuracy of 8, 98 %
+Accuracy of 9, 95 %
+Untargeted jsma attack
+Avg Accuracy, 97 %
+Accuracy of 0, 99 %
+Accuracy of 1, 95 %
+Accuracy of 2, 98 %
+Accuracy of 3, 99 %
+Accuracy of 4, 97 %
+Accuracy of 5, 98 %
+Accuracy of 6, 99 %
+Accuracy of 7, 96 %
+Accuracy of 8, 98 %
+Accuracy of 9, 96 %
+Targeted jsma attack
+Avg Accuracy, 88 %
+Accuracy of 0, 77 %
+Accuracy of 1, 77 %
+Accuracy of 2, 84 %
+Accuracy of 3, 98 %
+Accuracy of 4, 95 %
+Accuracy of 5, 87 %
+Accuracy of 6, 92 %
+Accuracy of 7, 84 %
+Accuracy of 8, 97 %
+Accuracy of 9, 94 %
+Untargeted elastic net attack
+Clean dataset
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 99 %
+Untargeted ddnl2 attack
+Avg Accuracy, 94 %
+Accuracy of 0, 96 %
+Accuracy of 1, 96 %
+Accuracy of 2, 96 %
+Accuracy of 3, 87 %
+Accuracy of 4, 93 %
+Accuracy of 5, 98 %
+Accuracy of 6, 98 %
+Accuracy of 7, 93 %
+Accuracy of 8, 91 %
+Accuracy of 9, 94 %
+Clean dataset
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 99 %
+Targeted ddnl2 attack
+Avg Accuracy, 78 %
+Accuracy of 0, 66 %
+Accuracy of 1, 99 %
+Accuracy of 2, 76 %
+Accuracy of 3, 95 %
+Accuracy of 4, 60 %
+Accuracy of 5, 88 %
+Accuracy of 6, 86 %
+Accuracy of 7, 87 %
+Accuracy of 8, 56 %
+Accuracy of 9, 62 %
+Untargeted lbfgs attack
+Avg Accuracy, 98 %
+Accuracy of 0, 99 %
+Accuracy of 1, 95 %
+Accuracy of 2, 98 %
+Accuracy of 3, 99 %
+Accuracy of 4, 98 %
+Accuracy of 5, 99 %
+Accuracy of 6, 99 %
+Accuracy of 7, 96 %
+Accuracy of 8, 98 %
+Accuracy of 9, 97 %
+Targeted lbfgs attack
+Avg Accuracy, 95 %
+Accuracy of 0, 95 %
+Accuracy of 1, 94 %
+Accuracy of 2, 95 %
+Accuracy of 3, 99 %
+Accuracy of 4, 94 %
+Accuracy of 5, 97 %
+Accuracy of 6, 97 %
+Accuracy of 7, 92 %
+Accuracy of 8, 95 %
+Accuracy of 9, 94 %
+Untargeted single pixel attack
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 99 %
+Targeted single pixel attack
+Avg Accuracy, 99 %
+Accuracy of 0, 99 %
+Accuracy of 1, 99 %
+Accuracy of 2, 99 %
+Accuracy of 3, 99 %
+Accuracy of 4, 99 %
+Accuracy of 5, 99 %
+Accuracy of 6, 98 %
+Accuracy of 7, 99 %
+Accuracy of 8, 99 %
+Accuracy of 9, 99 %
+Targeted cw attack
+Untargeted spatial transform attack
+Avg Accuracy, 64 %
+Accuracy of 0, 70 %
+Accuracy of 1, 64 %
+Accuracy of 2, 65 %
+Accuracy of 3, 65 %
+Accuracy of 4, 62 %
+Accuracy of 5, 53 %
+Accuracy of 6, 65 %
+Accuracy of 7, 58 %
+Accuracy of 8, 71 %
+Accuracy of 9, 69 %
+Targeted spatial transform attack
